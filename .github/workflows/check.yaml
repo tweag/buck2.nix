@@ -1,0 +1,78 @@
+name: Check
+
+on:
+  push:
+    branches: main
+  pull_request:
+    branches: main
+  workflow_dispatch: # allows manual triggering
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+
+jobs:
+  test:
+    name: Test
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - ubuntu-24.04
+          - macos-14
+    runs-on: ${{ matrix.os }}
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
+      - uses: cachix/install-nix-action@08dcb3a5e62fa31e2da3d490afc4176ef55ecd72 # v30
+      - name: Configure credentials
+        # TODO(cb) remove this step once repo is public
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          git config --global credential.helper store
+          echo "https://$GITHUB_REPOSITORY_OWNER:$GITHUB_TOKEN@github.com" > "$HOME/.git-credentials"
+      - name: Init sample project
+        run: |
+          nix flake new --template . sample
+      - name: Build example
+        working-directory: sample
+        run: |
+          nix develop --ignore-environment --keep HOME path:$(pwd) --command buck2 build ...
+      - name: Run
+        working-directory: sample
+        run: |
+          # weather might fail if the server does not respond
+          nix develop --ignore-environment --keep HOME path:$(pwd) --command buck2 run :weather || true
+          nix develop --ignore-environment --keep HOME path:$(pwd) --command buck2 run :hello
+          nix develop --ignore-environment --keep HOME path:$(pwd) --command buck2 run src/cxx:hello
+          nix develop --ignore-environment --keep HOME path:$(pwd) --command buck2 run src/python:hello
+          nix develop --ignore-environment --keep HOME path:$(pwd) --command buck2 run src/rust:hello
+
+
+  docs:
+    name: Docs
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+    env:
+      GENERATE_DOCS: "nix run .#generate-docs"
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
+      - uses: cachix/install-nix-action@08dcb3a5e62fa31e2da3d490afc4176ef55ecd72 # v30
+      - name: Generate docs
+        run: |
+          set -x
+          ${GENERATE_DOCS} > docs/README.md
+      - name: Check if docs are up-to-date
+        run: |
+          if ! git diff --exit-code docs/README.md; then
+            (
+              echo ':warning: Documentation not up-to-date'
+              echo
+              echo 'Please run `'"${GENERATE_DOCS}"' > docs/README.md` and commit the file.'
+              echo
+            ) >> "$GITHUB_STEP_SUMMARY"
+            exit 1
+          fi

@@ -1,0 +1,6 @@
+/buck-out
+/.buckconfig.local
+/.buckconfig.d/buck2-nix.config
+/.envrc.private
+/.direnv
+/flake.lock

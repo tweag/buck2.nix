@@ -1,0 +1,32 @@
+load("@nix//flake.bzl", "flake")
+
+flake.package(
+    name = "python",
+    binary = "python3",
+    package = "python3",
+    path = "@toolchains//nix:flake",
+)
+
+flake.package(
+    name = "curl",
+    binary = "curl",
+    output = "bin",
+    path = "@toolchains//nix:flake",
+)
+
+# hello, from Python
+command_alias(
+    name = "hello",
+    args = [
+        "-c",
+        'import sys; print(f"hello, from Python {sys.version}")',
+    ],
+    exe = ":python",
+)
+
+# show the weather at your current location
+command_alias(
+    name = "weather",
+    args = ["wttr.in/?0"],
+    exe = ":curl",
+)

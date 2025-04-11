@@ -1,0 +1,5 @@
+/buck-out
+/.buckconfig.local
+/.envrc.private
+/.direnv
+/examples/flake.lock

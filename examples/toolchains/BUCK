@@ -1,0 +1,86 @@
+load("@nix//:flake.bzl", "flake")
+load("@nix//toolchains:cxx.bzl", "nix_cxx_toolchain")
+load("@nix//toolchains:python.bzl", "nix_python_bootstrap_toolchain")
+load("@nix//toolchains:rust.bzl", "nix_rust_toolchain")
+load("@prelude//toolchains:genrule.bzl", "system_genrule_toolchain")
+
+# this is needed for cross compilation, using buck2 build --target-platforms ...
+_TARGET_MAPPING = [
+    select({k: k for k in [
+        "config//os:linux",
+        "config//os:macos",
+    ]}),
+    select({k: k for k in [
+        "config//cpu:arm64",
+        "config//cpu:x86_64",
+    ]}),
+]
+
+### Packages #######################################
+
+flake.package(
+    name = "nix_cc",
+    binaries = [
+        "ar",
+        "cc",
+        "c++",
+        "nm",
+        "objcopy",
+        "ranlib",
+        "strip",
+    ],
+    package = "cxx",
+    path = "//nix:flake",
+    target_compatible_with = _TARGET_MAPPING,
+)
+
+flake.package(
+    name = "python",
+    binary = "python3",
+    package = "python3",
+    path = "//nix:flake",
+    target_compatible_with = _TARGET_MAPPING,
+)
+
+flake.package(
+    name = "clippy",
+    binary = "clippy-driver",
+    path = "//nix:flake",
+    target_compatible_with = _TARGET_MAPPING,
+)
+
+flake.package(
+    name = "rustc",
+    binaries = ["rustdoc"],
+    binary = "rustc",
+    path = "//nix:flake",
+    target_compatible_with = _TARGET_MAPPING,
+)
+
+### Toolchains #####################################
+
+system_genrule_toolchain(
+    name = "genrule",
+    visibility = ["PUBLIC"],
+)
+
+nix_cxx_toolchain(
+    name = "cxx",
+    nix_cc = ":nix_cc",
+    visibility = ["PUBLIC"],
+)
+
+nix_python_bootstrap_toolchain(
+    name = "python_bootstrap",
+    python = ":python",
+    visibility = ["PUBLIC"],
+)
+
+nix_rust_toolchain(
+    name = "rust",
+    clippy = ":clippy",
+    default_edition = "2021",
+    rustc = ":rustc",
+    rustdoc = ":rustc[rustdoc]",
+    visibility = ["PUBLIC"],
+)
