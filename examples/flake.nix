@@ -26,7 +26,7 @@
     in
     {
       devShells = forAllSystems (pkgs: {
-        default = pkgs.mkShell {
+        default = pkgs.mkShellNoCC {
           name = "buck2-shell";
           packages = [
             pkgs.buck2
