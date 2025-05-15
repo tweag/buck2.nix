@@ -26,13 +26,6 @@ jobs:
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
       - uses: cachix/install-nix-action@08dcb3a5e62fa31e2da3d490afc4176ef55ecd72 # v30
-      - name: Configure credentials
-        # TODO(cb) remove this step once repo is public
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          git config --global credential.helper store
-          echo "https://$GITHUB_REPOSITORY_OWNER:$GITHUB_TOKEN@github.com" > "$HOME/.git-credentials"
       - name: Init sample project
         run: |
           nix flake new --template . sample
