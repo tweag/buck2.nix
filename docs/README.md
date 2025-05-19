@@ -1,3 +1,125 @@
+# flake.legacyPackage
+
+A `flake.legacyPackage()` rule builds a nix package of a given flake.
+
+```
+flake.legacyPackage(
+    name: str,
+    default_target_platform: None | str = ...,
+    target_compatible_with: list[str] = ...,
+    compatible_with: list[str] = ...,
+    exec_compatible_with: list[str] = ...,
+    visibility: list[str] = ...,
+    within_view: list[str] = ...,
+    metadata: OpaqueMetadata = ...,
+    tests: list[str] = ...,
+    modifiers: OpaqueMetadata = ...,
+    binaries: list[str] = ...,
+    binary: None | str = ...,
+    output: str = ...,
+    package: None | str = ...,
+    path: str,
+)
+```
+
+## Examples
+
+```starlark
+flake.legacyPackage(
+    name = "curl",
+    path = ":nixpkgs",
+    output = "bin",
+    binary = "curl",
+)
+```
+
+This creates a target called `curl` from the nix flake in `./nix`, building `path:nix#legacyPackages.<system>.curl.bin`.
+
+## Parameters
+
+### `name`
+
+name of the target
+
+
+### `default_target_platform`
+
+specifies the default target platform, used when no platforms are specified on the command line
+
+
+### `target_compatible_with`
+
+a list of constraints that are required to be satisfied for this target to be compatible with a configuration
+
+
+### `compatible_with`
+
+a list of constraints that are required to be satisfied for this target to be compatible with a configuration
+
+
+### `exec_compatible_with`
+
+a list of constraints that are required to be satisfied for this target to be compatible with an execution platform
+
+
+### `visibility`
+
+a list of visibility patterns restricting what targets can depend on this one
+
+
+### `within_view`
+
+a list of visibility patterns restricting what this target can depend on
+
+
+### `metadata`
+
+a key-value map of metadata associated with this target
+
+
+### `tests`
+
+a list of targets that provide tests for this one
+
+
+### `modifiers`
+
+an array of modifiers associated with this target
+
+
+### `binaries`
+
+add auxiliary binaries for this package
+
+These can be accessed as sub-targets with the given name in dependent rules.
+
+
+### `binary`
+
+specify the default binary of this package
+
+This provides `RunInfo` for a binary in the `bin` directory of the package.
+
+
+### `output`
+
+specify the output to build instead of the default
+
+(optional, default: `"out"`)
+
+
+### `package`
+
+name of the flake output
+
+(optional, default: same as `name`)
+
+
+### `path`
+
+the path to the flake
+
+
 # flake.package
 
 A `flake.package()` rule builds a nix package of a given flake.

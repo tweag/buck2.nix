@@ -1,5 +1,21 @@
 load("@nix//flake.bzl", "flake")
 
+http_archive(
+    name = "nixpkgs",
+    sha256 = "f7b84b915f51c2470c1aea3efd3013ceeca4186726bf70e348b8e2fb163ff856",
+    urls = [
+      # nixos-24.11 2025-05-16
+      "https://github.com/NixOS/nixpkgs/archive/5d736263df906c5da72ab0f372427814de2f52f8.tar.gz",
+    ],
+    strip_prefix = "nixpkgs-5d736263df906c5da72ab0f372427814de2f52f8",
+)
+
+flake.legacyPackage(
+    name = "cowsay",
+    binary = "cowsay",
+    path = ":nixpkgs",
+)
+
 flake.package(
     name = "python",
     binary = "python3",

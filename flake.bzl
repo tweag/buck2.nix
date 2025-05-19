@@ -11,6 +11,7 @@ load("@prelude//os_lookup:defs.bzl", "OsLookup")
 def __flake_package_impl(
         ctx: AnalysisContext,
         path: Artifact,
+        package_set: str,
         package: str,
         output: str,
         binary: str | None,
@@ -34,7 +35,7 @@ def __flake_package_impl(
 
     system = "{cpu}-{os}".format(os = os, cpu = cpu)
 
-    attribute = "packages." + system + "." + package + "." + output
+    attribute = package_set + "." + system + "." + package + "." + output
 
     # nix will build the first output by default, but we do not know what the first output is called.
     # That's why we build the "out" output by default.
@@ -74,40 +75,43 @@ def __flake_package_impl(
         ),
     ] + run_info
 
+__common_attrs = {
+    "binary": attrs.option(attrs.string(), default = None, doc = """
+      specify the default binary of this package
+
+      This provides `RunInfo` for a binary in the `bin` directory of the package.
+    """),
+    "binaries": attrs.list(attrs.string(), default = [], doc = """
+      add auxiliary binaries for this package
+
+      These can be accessed as sub-targets with the given name in dependent rules.
+    """),
+    "path": attrs.source(allow_directory = True, doc = "the path to the flake"),
+    "output": attrs.string(default = "out", doc = """
+      specify the output to build instead of the default
+
+      (optional, default: `"out"`)
+    """),
+    "package": attrs.option(attrs.string(), doc = """
+      name of the flake output
+
+      (optional, default: same as `name`)
+    """, default = None),
+    "_target_os_type": buck.target_os_type_arg(),
+}
+
 __flake_package = rule(
     impl = lambda ctx: __flake_package_impl(
         ctx,
         ctx.attrs.path,
+        "packages",
         ctx.attrs.package or ctx.label.name,
         ctx.attrs.output,
         ctx.attrs.binary,
         ctx.attrs.binaries,
         ctx.attrs._target_os_type[OsLookup],
     ),
-    attrs = {
-        "binary": attrs.option(attrs.string(), default = None, doc = """
-          specify the default binary of this package
-
-          This provides `RunInfo` for a binary in the `bin` directory of the package.
-        """),
-        "binaries": attrs.list(attrs.string(), default = [], doc = """
-          add auxiliary binaries for this package
-
-          These can be accessed as sub-targets with the given name in dependent rules.
-        """),
-        "path": attrs.source(allow_directory = True, doc = "the path to the flake"),
-        "output": attrs.string(default = "out", doc = """
-          specify the output to build instead of the default
-
-          (optional, default: `"out"`)
-        """),
-        "package": attrs.option(attrs.string(), doc = """
-          name of the flake output
-
-          (optional, default: same as `name`)
-        """, default = None),
-        "_target_os_type": buck.target_os_type_arg(),
-    },
+    attrs = __common_attrs,
     doc = """
     A `flake.package()` rule builds a nix package of a given flake.
 
@@ -126,8 +130,39 @@ __flake_package = rule(
     """,
 )
 
+__flake_legacyPackage = rule(
+    impl = lambda ctx: __flake_package_impl(
+        ctx,
+        ctx.attrs.path,
+        "legacyPackages",
+        ctx.attrs.package or ctx.label.name,
+        ctx.attrs.output,
+        ctx.attrs.binary,
+        ctx.attrs.binaries,
+        ctx.attrs._target_os_type[OsLookup],
+    ),
+    attrs = __common_attrs,
+    doc = """
+    A `flake.legacyPackage()` rule builds a nix package of a given flake.
+
+    ## Examples
+
+    ```starlark
+    flake.legacyPackage(
+        name = "curl",
+        path = ":nixpkgs",
+        output = "bin",
+        binary = "curl",
+    )
+    ```
+
+    This creates a target called `curl` from the nix flake in `./nix`, building `path:nix#legacyPackages.<system>.curl.bin`.
+    """,
+)
+
 ## ---------------------------------------------------------------------------------------------------------------------
 
 flake = struct(
+    legacyPackage = __flake_legacyPackage,
     package = __flake_package,
 )
