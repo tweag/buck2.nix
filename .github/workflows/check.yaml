@@ -29,6 +29,10 @@ jobs:
       - name: Init sample project
         run: |
           nix flake new --template . sample
+      - name: Update buck2.nix flake input
+        working-directory: sample
+        run: |
+          nix flake update --override-input buck2-nix github:tweag/buck2.nix/${{ github.sha }} --flake "path:$(pwd)"
       - name: Build example
         working-directory: sample
         run: |
