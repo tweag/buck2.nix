@@ -39,6 +39,7 @@ jobs:
           # weather might fail if the server does not respond
           nix develop --ignore-environment --keep HOME path:$(pwd) --command buck2 run :weather || true
           nix develop --ignore-environment --keep HOME path:$(pwd) --command buck2 run :hello
+          nix develop --ignore-environment --keep HOME path:$(pwd) --command buck2 run :cowsay -- hello, world
           nix develop --ignore-environment --keep HOME path:$(pwd) --command buck2 run src/cxx:hello
           nix develop --ignore-environment --keep HOME path:$(pwd) --command buck2 run src/python:hello
           nix develop --ignore-environment --keep HOME path:$(pwd) --command buck2 run src/rust:hello
