@@ -5,7 +5,7 @@
 #    flake.package(name = "pkg", path = "path/to/flake/dir", ...)
 
 load("@prelude//decls/common.bzl", "buck")
-load("@prelude//os_lookup:defs.bzl", "OsLookup")
+load("@prelude//os_lookup:defs.bzl", "Os", "OsLookup")
 
 ## ---------------------------------------------------------------------------------------------------------------------
 def __flake_package_impl(
@@ -19,12 +19,12 @@ def __flake_package_impl(
         target_os_info: OsLookup) -> list[Provider]:
     # calls nix build path:<path>#package.<arch-os>.<package>
 
-    if target_os_info.platform == "linux":
+    if target_os_info.os == Os("linux"):
         os = "linux"
-    elif target_os_info.platform == "macos":
+    elif target_os_info.os == Os("macos"):
         os = "darwin"
     else:
-        fail("host os not supported: {}".format(target_os_info.platform))
+        fail("host os not supported: {}".format(target_os_info.os))
 
     if target_os_info.cpu == "x86_64":
         cpu = "x86_64"

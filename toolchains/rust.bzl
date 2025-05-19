@@ -1,5 +1,4 @@
 load("@prelude//rust:rust_toolchain.bzl", "PanicRuntime", "RustToolchainInfo")
-load("@prelude//rust/tools:attrs.bzl", "internal_tool_attrs")
 
 _DEFAULT_TRIPLE = select({
     "config//os:linux": select({
@@ -39,26 +38,21 @@ def _nix_rust_toolchain_impl(ctx: AnalysisContext) -> list[Provider]:
             panic_runtime = PanicRuntime("unwind"),
             deny_lints = ctx.attrs.deny_lints,
             doctests = ctx.attrs.doctests,
-            failure_filter_action = ctx.attrs.failure_filter_action[RunInfo],
             nightly_features = ctx.attrs.nightly_features,
             report_unused_deps = ctx.attrs.report_unused_deps,
-            rustc_action = ctx.attrs.rustc_action[RunInfo],
             rustc_binary_flags = ctx.attrs.rustc_binary_flags,
             rustc_flags = ctx.attrs.rustc_flags,
             rustc_target_triple = ctx.attrs.rustc_target_triple,
             rustc_test_flags = ctx.attrs.rustc_test_flags,
             rustdoc = ctx.attrs.rustdoc[RunInfo],
             rustdoc_flags = ctx.attrs.rustdoc_flags,
-            rustdoc_test_with_resources = ctx.attrs.rustdoc_test_with_resources[RunInfo],
-            rustdoc_coverage = ctx.attrs.rustdoc_coverage[RunInfo],
-            transitive_dependency_symlinks_tool = ctx.attrs.transitive_dependency_symlinks_tool[RunInfo],
             warn_lints = ctx.attrs.warn_lints,
         ),
     ]
 
 nix_rust_toolchain = rule(
     impl = _nix_rust_toolchain_impl,
-    attrs = internal_tool_attrs | {
+    attrs = {
         "allow_lints": attrs.list(attrs.string(), default = []),
         "clippy": attrs.exec_dep(providers = [RunInfo]),
         "clippy_toml": attrs.option(attrs.dep(providers = [DefaultInfo]), default = None),
