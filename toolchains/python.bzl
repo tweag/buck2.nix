@@ -4,7 +4,7 @@ def _nix_python_bootstrap_toolchain_impl(ctx: AnalysisContext) -> list[Provider]
     return [
         DefaultInfo(),
         PythonBootstrapToolchainInfo(
-            interpreter = ctx.attrs.python[RunInfo],
+            interpreter = ctx.attrs.python[RunInfo].args,
         ),
     ]
 
