@@ -6,6 +6,9 @@ on:
   pull_request:
     branches: main
   workflow_dispatch: # allows manual triggering
+  schedule:
+    # run at 22:33 every Thursday
+    - cron: '33 22 * * 4'
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
