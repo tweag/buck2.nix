@@ -57,7 +57,7 @@ outputs = { ... }: {
 in `tools/BUCK`:
 
 ```bazel
-load("@nix//flake.bzl", "flake")
+load("@nix//:flake.bzl", "flake")
 
 flake.package(
     name = "python"
