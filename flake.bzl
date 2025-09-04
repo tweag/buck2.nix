@@ -1,10 +1,10 @@
 # HOW TO USE THIS MODULE:
 #
-#    load("@nix/flake.bzl", "flake")
+#    load("@nix//:flake.bzl", "flake")
 #
 #    flake.package(name = "pkg", path = "path/to/flake/dir", ...)
 
-load("@prelude//decls/common.bzl", "buck")
+load("@prelude//decls:common.bzl", "buck")
 load("@prelude//os_lookup:defs.bzl", "Os", "OsLookup")
 
 ## ---------------------------------------------------------------------------------------------------------------------

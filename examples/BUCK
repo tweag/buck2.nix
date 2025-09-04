@@ -1,4 +1,4 @@
-load("@nix//flake.bzl", "flake")
+load("@nix//:flake.bzl", "flake")
 
 http_archive(
     name = "nixpkgs",
