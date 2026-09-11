@@ -96,8 +96,6 @@ def _nix_cxx_toolchain(ctx: AnalysisContext) -> list[Provider]:
             objcopy = nix_cc["objcopy"][RunInfo],
             ranlib = nix_cc["ranlib"][RunInfo],
             strip = nix_cc["strip"][RunInfo],
-            dwp = None,
-            bolt_msdk = None,
         ),
         cxx_compiler_info = CxxCompilerInfo(
             compiler = RunInfo(args = [cxx_compiler]),
