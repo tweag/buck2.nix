@@ -22,7 +22,7 @@ jobs:
       matrix:
         os:
           - ubuntu-24.04
-          - macos-14
+          - macos-15
     runs-on: ${{ matrix.os }}
     permissions:
       contents: read
